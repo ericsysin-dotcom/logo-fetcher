@@ -1,0 +1,45 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# ── API proxies ────────────────────────────────────────────────────────────
+# These mirror the Vite dev-server proxy so the same paths work in production.
+# Netlify forwards all request headers (including x-api-key for Clipdrop)
+# and query strings automatically.
+
+[[redirects]]
+  from   = "/logo-proxy/*"
+  to     = "https://logo.clearbit.com/:splat"
+  status = 200
+  force  = true
+
+[[redirects]]
+  from   = "/gstatic-proxy/*"
+  to     = "https://t1.gstatic.com/:splat"
+  status = 200
+  force  = true
+
+[[redirects]]
+  from   = "/ddg-proxy/*"
+  to     = "https://icons.duckduckgo.com/:splat"
+  status = 200
+  force  = true
+
+[[redirects]]
+  from   = "/favicon-proxy/*"
+  to     = "https://www.google.com/:splat"
+  status = 200
+  force  = true
+
+[[redirects]]
+  from   = "/clipdrop-proxy/*"
+  to     = "https://clipdrop-api.co/:splat"
+  status = 200
+  force  = true
+
+# ── SPA fallback ───────────────────────────────────────────────────────────
+# Serve index.html for any path that didn't match a real file or proxy above.
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200
