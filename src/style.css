@@ -248,6 +248,11 @@ body {
 }
 .auth-name-cancel-btn:hover { color: var(--text-1); border-color: var(--border-md); }
 
+.auth-name-save-err {
+  font-size: 0.78rem;
+  color: var(--error, #f87171);
+}
+
 .auth-form {
   display: flex;
   flex-direction: column;

@@ -219,12 +219,17 @@ function drawWelcome(card, user, onEnter, onLogout, onRename) {
     nameRow.style.display = 'flex'
   })
 
+  const saveErr = document.createElement('div')
+  saveErr.className = 'auth-name-save-err'
+  nameEditRow.appendChild(saveErr)
+
   const doSave = async () => {
     const newName = nameInput.value.trim()
     if (!newName) { nameInput.focus(); return }
     if (newName === (user.name || user.email.split('@')[0])) { cancelBtn.click(); return }
     saveBtn.disabled = true
     saveBtn.textContent = 'Saving\u2026'
+    saveErr.textContent = ''
     const { error } = await supabase.auth.updateUser({ data: { name: newName } })
     saveBtn.disabled = false
     saveBtn.textContent = 'Save'
@@ -234,6 +239,8 @@ function drawWelcome(card, user, onEnter, onLogout, onRename) {
       if (onRename) onRename(newName)
       nameEditRow.style.display = 'none'
       nameRow.style.display = 'flex'
+    } else {
+      saveErr.textContent = error.message || 'Save failed'
     }
   }
 
