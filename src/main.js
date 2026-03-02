@@ -40,6 +40,14 @@ export async function logout() {
   render()
 }
 
+function goHome() {
+  Object.assign(state, {
+    mode: null, step: 0, home: true, page: null,
+    names: [], entries: [], processed: [],
+  })
+  render()
+}
+
 // ── Icons (lucide style, 15×15) ────────────────────────────────────────────
 const ICONS = {
   edit:     `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="m18.5 2.5 2 2L11 14l-3 1 1-3 9.5-9.5z"/></svg>`,
@@ -150,6 +158,7 @@ function render() {
       onLogin:  (user) => { state.user = user; render() },
       onEnter:  ()     => { state.home = false; state.step = 0; render() },
       onLogout: async () => { await clearSession(); state.user = null; render() },
+      onRename: (newName) => { if (state.user) state.user.name = newName },
     })
     app.appendChild(authEl)
     _vortexCleanup = authEl._cleanup || null
@@ -169,8 +178,12 @@ function render() {
     : ''
   header.innerHTML =
     `<h1>Logo Fetcher</h1>${modeBadge}<p>Build a company landscape slide in minutes</p>` +
-    `<button class="header-help-btn" id="header-help-btn">How it works</button>`
+    `<div class="header-actions">` +
+    `<button class="header-home-btn" id="header-home-btn">\u21ba Start over</button>` +
+    `<button class="header-help-btn" id="header-help-btn">How it works</button>` +
+    `</div>`
   app.appendChild(header)
+  document.getElementById('header-home-btn').addEventListener('click', goHome)
   document.getElementById('header-help-btn').addEventListener('click', goToHelp)
 
   // Goal screen — no nav, no main wrapper

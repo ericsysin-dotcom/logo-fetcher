@@ -179,9 +179,74 @@ body {
   font-weight: 700;
   letter-spacing: -0.04em;
   color: var(--text-1);
-  margin: 0 0 0.5rem;
+  margin: 0;
   line-height: 1.15;
 }
+
+.auth-name-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.auth-name-edit-btn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding: 0.2rem;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: var(--text-3);
+  cursor: pointer;
+  transition: color var(--t-fast) var(--ease);
+}
+.auth-name-edit-btn:hover { color: var(--text-1); }
+
+.auth-name-edit-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.auth-name-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.35rem 0.6rem;
+  font-size: 1rem;
+  font-family: inherit;
+  background: var(--surface-2);
+  border: 1px solid var(--border-md);
+  border-radius: var(--r-sm);
+  color: var(--text-1);
+  outline: none;
+}
+.auth-name-input:focus { border-color: var(--accent-2); }
+
+.auth-name-btn-row {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.auth-name-save-btn {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8125rem;
+}
+
+.auth-name-cancel-btn {
+  padding: 0.35rem 0.6rem;
+  font-size: 0.8125rem;
+  font-family: inherit;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text-2);
+  cursor: pointer;
+  transition: color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
+}
+.auth-name-cancel-btn:hover { color: var(--text-1); border-color: var(--border-md); }
 
 .auth-form {
   display: flex;
@@ -250,10 +315,16 @@ body {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
-   Header help button
+   Header action buttons
    ───────────────────────────────────────────────────────────────────────── */
-.header-help-btn {
+.header-actions {
   margin-left: auto;
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+.header-help-btn,
+.header-home-btn {
   padding: 0.3rem 0.85rem;
   font-size: 0.8125rem;
   font-family: inherit;
@@ -264,7 +335,8 @@ body {
   cursor: pointer;
   transition: color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
 }
-.header-help-btn:hover {
+.header-help-btn:hover,
+.header-home-btn:hover {
   color: var(--text-1);
   border-color: var(--border-md);
 }

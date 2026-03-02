@@ -2,12 +2,13 @@
 
 import { supabase } from './supabase.js'
 
-// { user, onLogin, onEnter, onLogout }
-// user    — current user object or null
-// onLogin — called with user after successful sign-in/up (landing stays visible)
-// onEnter — called when user clicks "Enter tool" (navigates into the app)
-// onLogout— called when user clicks "Sign out"
-export function renderAuth({ user, onLogin, onEnter, onLogout }) {
+// { user, onLogin, onEnter, onLogout, onRename }
+// user     — current user object or null
+// onLogin  — called with user after successful sign-in/up (landing stays visible)
+// onEnter  — called when user clicks "Enter tool" (navigates into the app)
+// onLogout — called when user clicks "Sign out"
+// onRename — called with newName after display name is changed
+export function renderAuth({ user, onLogin, onEnter, onLogout, onRename }) {
   const screen = document.createElement('div')
   screen.className = 'auth-screen'
 
@@ -39,7 +40,7 @@ export function renderAuth({ user, onLogin, onEnter, onLogout }) {
 
   if (user) {
     // ── Welcome state (logged in) ───────────────────────────────────────────
-    drawWelcome(card, user, onEnter, onLogout)
+    drawWelcome(card, user, onEnter, onLogout, onRename)
   } else {
     // ── Login / sign-up form ────────────────────────────────────────────────
     let mode = 'login'
@@ -153,7 +154,7 @@ export function renderAuth({ user, onLogin, onEnter, onLogout }) {
 }
 
 // ── Welcome card (logged-in state) ─────────────────────────────────────────
-function drawWelcome(card, user, onEnter, onLogout) {
+function drawWelcome(card, user, onEnter, onLogout, onRename) {
   const displayName = user.name || user.email.split('@')[0]
 
   const brand = document.createElement('div')
@@ -167,10 +168,82 @@ function drawWelcome(card, user, onEnter, onLogout) {
   greeting.style.marginBottom = '0.25rem'
   greeting.textContent = 'Welcome back,'
 
+  // ── Name row (name + edit button) ────────────────────────────────────────
+  const nameRow = document.createElement('div')
+  nameRow.className = 'auth-name-row'
+
   const nameEl = document.createElement('h2')
   nameEl.className = 'auth-welcome-name'
   nameEl.textContent = displayName
 
+  const editBtn = document.createElement('button')
+  editBtn.className = 'auth-name-edit-btn'
+  editBtn.title = 'Edit display name'
+  editBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="m18.5 2.5 2 2L11 14l-3 1 1-3 9.5-9.5z"/></svg>`
+
+  nameRow.append(nameEl, editBtn)
+
+  // ── Inline edit form (hidden initially) ──────────────────────────────────
+  const nameEditRow = document.createElement('div')
+  nameEditRow.className = 'auth-name-edit-row'
+  nameEditRow.style.display = 'none'
+
+  const nameInput = document.createElement('input')
+  nameInput.type = 'text'
+  nameInput.className = 'auth-name-input'
+  nameInput.value = displayName
+
+  const saveBtn = document.createElement('button')
+  saveBtn.className = 'btn-primary auth-name-save-btn'
+  saveBtn.textContent = 'Save'
+
+  const cancelBtn = document.createElement('button')
+  cancelBtn.className = 'auth-name-cancel-btn'
+  cancelBtn.textContent = 'Cancel'
+
+  const nameBtnRow = document.createElement('div')
+  nameBtnRow.className = 'auth-name-btn-row'
+  nameBtnRow.append(saveBtn, cancelBtn)
+
+  nameEditRow.append(nameInput, nameBtnRow)
+
+  editBtn.addEventListener('click', () => {
+    nameRow.style.display = 'none'
+    nameEditRow.style.display = 'flex'
+    nameInput.focus()
+    nameInput.select()
+  })
+
+  cancelBtn.addEventListener('click', () => {
+    nameEditRow.style.display = 'none'
+    nameRow.style.display = 'flex'
+  })
+
+  const doSave = async () => {
+    const newName = nameInput.value.trim()
+    if (!newName) { nameInput.focus(); return }
+    if (newName === (user.name || user.email.split('@')[0])) { cancelBtn.click(); return }
+    saveBtn.disabled = true
+    saveBtn.textContent = 'Saving\u2026'
+    const { error } = await supabase.auth.updateUser({ data: { name: newName } })
+    saveBtn.disabled = false
+    saveBtn.textContent = 'Save'
+    if (!error) {
+      user.name = newName
+      nameEl.textContent = newName
+      if (onRename) onRename(newName)
+      nameEditRow.style.display = 'none'
+      nameRow.style.display = 'flex'
+    }
+  }
+
+  saveBtn.addEventListener('click', doSave)
+  nameInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') doSave()
+    if (e.key === 'Escape') cancelBtn.click()
+  })
+
+  // ─────────────────────────────────────────────────────────────────────────
   const tagline = document.createElement('p')
   tagline.className = 'auth-subtitle'
   tagline.textContent = 'Ready to build your next landscape?'
@@ -188,7 +261,7 @@ function drawWelcome(card, user, onEnter, onLogout) {
   signOutLink.addEventListener('click', onLogout)
   signOutRow.appendChild(signOutLink)
 
-  card.append(brand, greeting, nameEl, tagline, enterBtn, signOutRow)
+  card.append(brand, greeting, nameRow, nameEditRow, tagline, enterBtn, signOutRow)
 }
 
 // ── Canvas vortex animation ────────────────────────────────────────────────
